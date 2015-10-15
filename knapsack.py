@@ -8,6 +8,7 @@ from itertools import repeat
 
 
 def print_2d_arr(arr):
+    arr.reverse()
     for a in arr:
         s = ""
         for i in a:
@@ -15,11 +16,24 @@ def print_2d_arr(arr):
         print s
 
 
+def solve_grid(g, w):
+    ans = []
+    cap = len(g) - 1
+    item = len(g[0]) - 1
+
+    while item > 0:
+        if g[cap][item] != g[cap][item - 1]:
+            ans.append(item)
+            cap -= w[item - 1]
+        item -= 1
+    ans.reverse()
+    return ans
+
+
 def solve(values, weights, capacity):
     assert capacity > 0
     assert len(values) == len(weights)
 
-    result = []
     n = len(values)
 
     # if the total weights are less than the capacity
@@ -37,9 +51,15 @@ def solve(values, weights, capacity):
             if i == 0 or w == 0:
                 grid[w][i] = 0
             else:
-                # if weights[i] > w:
-                    grid[w][i] = 1
-    print_2d_arr(grid)
+                if weights[i - 1] > w or w - weights[i - 1] < 0:
+                    grid[w][i] = grid[w][i - 1]
+                else:
+                    grid[w][i] = max(grid[w][i - 1],
+                                     values[i - 1] + grid[w - weights[i - 1]][i - 1])
+
+    solution = solve_grid(grid, weights)
+
+    return solution, grid
 
 result = []
 vs = None
@@ -54,4 +74,7 @@ if len(sys.argv) > 1:
 if vs is not None and ws is not None and c is not None:
     result = solve(vs, ws, c)
 
-print result
+print "Decision grid:"
+print_2d_arr(result[1])
+print "Solution:"
+print result[0]
